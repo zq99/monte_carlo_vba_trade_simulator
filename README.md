@@ -35,3 +35,7 @@ Contributions are welcome, please feel free to open an issue or submit a pull re
 ## License
 
 This project is released under the MIT License. Please refer to the `LICENSE` file for more information.
+
+## Acknowledgements
+
+This is an original implementation of an idea for a type of analysis originally proposed by Kevin Davey.
