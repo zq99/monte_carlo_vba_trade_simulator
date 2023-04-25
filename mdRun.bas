@@ -2,7 +2,7 @@ Attribute VB_Name = "mdRun"
 Option Explicit
 
 
-Public Sub ClearRanges()
+Public Sub ClearUI()
 
 'Purpose: Reset this tool and any input ranges
 
@@ -41,8 +41,10 @@ Public Sub StartMonteCarloSimulation()
     blnScreenUpdating = Application.ScreenUpdating
     Application.ScreenUpdating = False
     
-    Call ClearRanges
+    ' clear the output from previous results
+    Call ClearUI
     
+    ' get the list of trades from the input worksheet
     vntTradeList = fncGetTrades()
     If UBound(vntTradeList) = 0 Then
         MsgBox "No trade list found!", vbExclamation + vbOKOnly, "Input Data"
@@ -52,12 +54,14 @@ Public Sub StartMonteCarloSimulation()
     Set ws = ThisWorkbook.Sheets("Control")
     With ws
     
+        ' parameters for the simulation
         intTotalRuns = .Range("TOTAL_RUNS").value
         intLotSize = .Range("LOT_SIZE").value
         intTradesInYear = .Range("TRADES_IN_YEAR").value
         dblStartEquity = .Range("START_EQUITY").value
         dblMarginLimit = .Range("MARGIN_LIMIT").value
         
+        'create a simulation object to run with the parameters
         Set oSimulation = mdFactory.CreateSimulation(totalRuns:=intTotalRuns, _
             tradesInYear:=intTradesInYear, lotSize:=intLotSize, TradeList:=vntTradeList, _
             startEquity:=dblStartEquity, margin:=dblMarginLimit)
@@ -66,8 +70,10 @@ Public Sub StartMonteCarloSimulation()
             lRow = .Range("OUTPUT_START_CELL").Row
             iCol = .Range("OUTPUT_START_CELL").Column
             
+            'run the simulation
             Set collFinalResults = oSimulation.fncRunProcess()
             
+            'output the results of the simulation
             If Not collFinalResults Is Nothing Then
                 For Each oResult In collFinalResults
                    
@@ -85,6 +91,8 @@ Public Sub StartMonteCarloSimulation()
     
         ws.Select
     End With
+    
+    MsgBox "Process complete!", vbOKOnly + vbInformation, "Simulation"
     
 Exit_Here:
 

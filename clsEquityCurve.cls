@@ -15,6 +15,7 @@ Private mdblMaxEquityAmount As Double
 Private mdblEquityAmount As Double
 Private mdblDrawdown As Double
 Private mIsRuined As Boolean
+Private mdblStartEquity As Double
 
 Property Get MaxEquityAmount() As Double
     MaxEquityAmount = mdblMaxEquityAmount
@@ -36,7 +37,6 @@ Property Get Drawdown() As Double
     Drawdown = mdblDrawdown
 End Property
 
-
 Property Get IsRuined() As Boolean
     IsRuined = mIsRuined
 End Property
@@ -50,8 +50,8 @@ Private Sub Class_Initialize()
     mdblDrawdown = 0
     mdblEquityAmount = 0
     mdblMaxEquityAmount = 0
+    mdblStartEquity = 0
 End Sub
-
 
 Public Sub calculateDrawdown()
     Dim value As Double
@@ -60,7 +60,28 @@ Public Sub calculateDrawdown()
 End Sub
 
 Public Sub InitializeStartEquity(ByVal dblEquity As Double)
+    mdblStartEquity = dblEquity
     mdblEquityAmount = dblEquity
     mdblMaxEquityAmount = dblEquity
 End Sub
+
+Public Sub Add(ByVal dblValue As Double)
+    mdblEquityAmount = mdblEquityAmount + dblValue
+    
+    If mdblEquityAmount > mdblMaxEquityAmount Then
+        mdblMaxEquityAmount = mdblEquityAmount
+    Else
+        Me.calculateDrawdown
+    End If
+End Sub
+
+Public Function GetReturn() As Double
+    GetReturn = ((mdblEquityAmount / mdblStartEquity) - 1)
+End Function
+
+Public Function GetReturnOverDrawdown() As Double
+    If Me.Drawdown <> 0 Then
+        GetReturnOverDrawdown = Me.GetReturn() / Me.Drawdown()
+    End If
+End Function
 

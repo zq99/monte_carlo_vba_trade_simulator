@@ -11,6 +11,6 @@ Public Function CreateSimulation(ByVal totalRuns As Integer, ByVal lotSize As In
     End If
     
     Set CreateSimulation = New clsSimulation
-    CreateSimulation.InitiateProperties lotSize:=lotSize, totalRuns:=totalRuns, tradesInYear:=tradesInYear, TradeList:=TradeList, startEquity:=startEquity, margin:=margin
-
+    CreateSimulation.InitiateProperties tradesInYear:=tradesInYear, TradeList:=TradeList, startEquity:=startEquity, margin:=margin, lotSize:=lotSize, totalRuns:=totalRuns
+    
 End Function

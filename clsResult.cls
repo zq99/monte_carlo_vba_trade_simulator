@@ -72,3 +72,11 @@ Property Get MedianReturnDD() As Double
     MedianReturnDD = mdblMedianReturnDD
 End Property
 
+Private Sub Class_Initialize()
+    mdblEquity = 0
+    mdblRuin = 0
+    mdblMedianDrawdown = 0
+    mdblMedianProfit = 0
+    mdblMedianReturn = 0
+    mdblMedianReturnDD = 0
+End Sub

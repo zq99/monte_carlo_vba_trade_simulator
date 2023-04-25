@@ -20,6 +20,8 @@ Private mdblMargin As Double
 Private mdblEquityIncrement As Double
 Private mintTradesInYear As Integer
 
+Private Const DEFAULT_RUNS As Integer = 2500
+Private Const DEFAULT_LOTSIZE As Integer = 1
 
 Property Get lotSize() As Integer
     lotSize = mintLotSize
@@ -36,8 +38,12 @@ Private Sub Class_Initialize()
 End Sub
 
 
-Public Sub InitiateProperties(ByVal lotSize As Integer, ByVal tradesInYear As Integer, ByVal totalRuns As Integer, _
-                              ByVal TradeList As Variant, ByVal startEquity As Double, ByVal margin As Double)
+Public Sub InitiateProperties(ByVal tradesInYear As Integer, ByVal TradeList As Variant, _
+                              ByVal startEquity As Double, ByVal margin As Double, _
+                              Optional ByVal lotSize As Integer = DEFAULT_LOTSIZE, _
+                              Optional ByVal totalRuns As Integer = DEFAULT_RUNS)
+
+'Purpose: This creates a method that can be used as a factory process to initialize the class
 
     mintLotSize = lotSize
     mintTotalRuns = totalRuns
@@ -64,7 +70,6 @@ On Error GoTo Err_Handler
     
     dblEnd = mdblStartEquity + 10 * mdblEquityIncrement
         
-    ' the simulation is run for different start base equity amounts
     For dblBeginEquity = mdblStartEquity To dblEnd Step mdblEquityIncrement
         
         Set oResult = fncProcessStartEquity(dblBeginEquity, mintTotalRuns)
@@ -86,7 +91,7 @@ Err_Handler:
 End Function
 
 
-Private Function fncProcessStartEquity(ByVal dblBeginEquity As Double, Optional ByVal intTotalRuns As Integer = 2500) As clsResult
+Private Function fncProcessStartEquity(ByVal dblBeginEquity As Double, Optional ByVal intTotalRuns As Integer = DEFAULT_RUNS) As clsResult
 
 ' Purpose: run the simulation for this starting equity amount
 
@@ -104,14 +109,12 @@ Private Function fncProcessStartEquity(ByVal dblBeginEquity As Double, Optional 
 
     dblTotalriskofruin = 0
 
-    ' this creates a temporary worksheet to process the calculations
     Call DeleteSheetIfExists(STR_CALC_SHEET)
     Set wsCalc = ThisWorkbook.Sheets.Add(After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count))
     wsCalc.name = STR_CALC_SHEET
     
     With wsCalc
     
-        ' repeating the simulation to get multiple equity curves
         For intIteration = 1 To intTotalRuns
         
             Set oEquityCurve = fncBuildEquityCurve(dblBeginEquity, mintTradesInYear, mvntTradeList, mintLotSize)
@@ -120,12 +123,10 @@ Private Function fncProcessStartEquity(ByVal dblBeginEquity As Double, Optional 
                 dblTotalriskofruin = dblTotalriskofruin + 1
             End If
             
-            ' output the results of the equity curve to the temporary sheet
             .Range("A" & intIteration).value = oEquityCurve.EquityAmount
             .Range("B" & intIteration).value = oEquityCurve.Drawdown
-            .Range("C" & intIteration).value = ((oEquityCurve.EquityAmount / dblBeginEquity) - 1)
-            If oEquityCurve.Drawdown <> 0 Then _
-                .Range("D" & intIteration) = ((oEquityCurve.EquityAmount / dblBeginEquity) - 1) / oEquityCurve.Drawdown
+            .Range("C" & intIteration).value = oEquityCurve.GetReturn
+            .Range("D" & intIteration).value = oEquityCurve.GetReturnOverDrawdown
         
         Next intIteration
         
@@ -138,7 +139,6 @@ Private Function fncProcessStartEquity(ByVal dblBeginEquity As Double, Optional 
     oResult.Equity = dblBeginEquity
     oResult.Ruin = dblTotalriskofruin
     
-    'calculate the average values
     oResult.MedianProfit = Application.WorksheetFunction.Median(wsCalc.Range("A1:A" & lRow)) - dblBeginEquity
     oResult.MedianDrawdown = Application.WorksheetFunction.Median(wsCalc.Range("B1:B" & lRow))
     oResult.MedianReturn = Application.WorksheetFunction.Median(wsCalc.Range("C1:C" & lRow))
@@ -146,7 +146,6 @@ Private Function fncProcessStartEquity(ByVal dblBeginEquity As Double, Optional 
 
     Set fncProcessStartEquity = oResult
     
-    'remove temporary sheets and tidy up variables
     Call DeleteSheetIfExists(STR_CALC_SHEET)
     Set oEquityCurve = Nothing
     Set wsCalc = Nothing
@@ -156,7 +155,7 @@ End Function
 
 
 Private Function fncBuildEquityCurve(ByVal dblBeginEquity As Double, ByVal intTradesInYear As Integer, _
-                                     ByVal vntTradeList As Variant, Optional ByVal intLotSize As Integer = 1) As clsEquityCurve
+                                     ByVal vntTradeList As Variant, Optional ByVal intLotSize As Integer = DEFAULT_LOTSIZE) As clsEquityCurve
 
 ' Purpose: This takes a list of trade PNL, then it picks at random a trade PNL value in order to construct an equity curve
 '          it does this for the number times specified for how many trades are likely to be placed in a year (intTradesInYear)
@@ -178,23 +177,15 @@ Private Function fncBuildEquityCurve(ByVal dblBeginEquity As Double, ByVal intTr
         Randomize (Time)
         
         intTradenumber = Application.WorksheetFunction.RandBetween(LBound(vntTradeList), UBound(vntTradeList))
+        
         dblTradevalue = vntTradeList(intTradenumber)
          
-        ' check if the current equity amount has fallen below threshold allowing us to trade
         If oEquityCurve.EquityAmount < mdblMargin Then
             oEquityCurve.IsRuined = True
             GoTo Exit_Function
         End If
-          
-        ' keep building the equity curve based from randomly sampled PNL values
-        oEquityCurve.EquityAmount = oEquityCurve.EquityAmount + (intLotSize * dblTradevalue)
         
-        ' track drawdown from the max peak of the curve
-        If oEquityCurve.EquityAmount > oEquityCurve.MaxEquityAmount Then
-            oEquityCurve.MaxEquityAmount = oEquityCurve.EquityAmount
-        Else
-            Call oEquityCurve.calculateDrawdown
-        End If
+        oEquityCurve.Add (intLotSize * dblTradevalue)
     
     Next
     
