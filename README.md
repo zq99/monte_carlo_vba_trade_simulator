@@ -38,4 +38,4 @@ This project is released under the MIT License. Please refer to the `LICENSE` fi
 
 ## Acknowledgements
 
-This is an original implementation of an idea originally proposed by Kevin Davey.
+This is an original implementation of an idea proposed by Kevin Davey.
