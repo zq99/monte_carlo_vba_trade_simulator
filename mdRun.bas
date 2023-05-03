@@ -2,23 +2,13 @@ Attribute VB_Name = "mdRun"
 Option Explicit
 
 
-Public Sub ClearUI()
-
-'Purpose: Reset this tool and any input ranges
-
-    Dim ws As Worksheet
-    
-    Set ws = ThisWorkbook.Sheets("Control")
-    ws.Range("OUTPUT").ClearContents
-    
-    Set ws = Nothing
-
-End Sub
-
-
 Public Sub StartMonteCarloSimulation()
-    
+'*******************************************************************************************************
+
 'Purpose: This is the main routine that takes the parameters from the worksheet and runs the simulation
+
+'*******************************************************************************************************
+
     
     Dim vntTradeList As Variant
     Dim iCalc As Integer
@@ -77,7 +67,7 @@ Public Sub StartMonteCarloSimulation()
             If Not collFinalResults Is Nothing Then
                 For Each oResult In collFinalResults
                    
-                   .Cells(lRow, iCol).value = oResult.Equity
+                   .Cells(lRow, iCol).value = oResult.equity
                    .Cells(lRow, iCol + 1).value = oResult.Ruin
                    .Cells(lRow, iCol + 2).value = oResult.MedianDrawdown
                    .Cells(lRow, iCol + 3).value = oResult.MedianProfit
@@ -92,7 +82,7 @@ Public Sub StartMonteCarloSimulation()
         ws.Select
     End With
     
-    MsgBox "Process complete!", vbOKOnly + vbInformation, "Simulation"
+    MsgBox "Process complete!", vbOKOnly + vbInformation, "Trade Simulation"
     
 Exit_Here:
 
@@ -126,5 +116,20 @@ Function fncGetTrades() As Variant
     fncGetTrades = Application.Transpose(rng.value)
     
     Set ws = Nothing
+    Set rng = Nothing
 
 End Function
+
+
+Public Sub ClearUI()
+
+'Purpose: Reset this tool and any input ranges
+
+    Dim ws As Worksheet
+    
+    Set ws = ThisWorkbook.Sheets("Control")
+    ws.Range("OUTPUT").ClearContents
+    
+    Set ws = Nothing
+
+End Sub

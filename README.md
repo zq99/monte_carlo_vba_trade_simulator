@@ -32,10 +32,12 @@ your own analysis and due dilligence.
 
 Contributions are welcome, please feel free to open an issue or submit a pull request.
 
+The module 'Test_Module_All" contains a subroutine called "RunAllTests" which can be used to test for any breaking changes after an amendment.
+
 ## License
 
 This project is released under the MIT License. Please refer to the `LICENSE` file for more information.
 
 ## Acknowledgements
 
-This is an original implementation of an idea proposed by Kevin Davey.
+This is a completely original implementation of a simulation idea proposed by Kevin Davey.

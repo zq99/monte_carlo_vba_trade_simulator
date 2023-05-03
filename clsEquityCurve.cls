@@ -11,11 +11,18 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
+Implements INameProvider
+
 Private mdblMaxEquityAmount As Double
 Private mdblEquityAmount As Double
 Private mdblDrawdown As Double
 Private mIsRuined As Boolean
 Private mdblStartEquity As Double
+Private marrEquityHistory() As Variant
+
+Private Function INameProvider_GetClassName() As String
+    INameProvider_GetClassName = "clsEquityCurve"
+End Function
 
 Property Get MaxEquityAmount() As Double
     MaxEquityAmount = mdblMaxEquityAmount
@@ -63,10 +70,13 @@ Public Sub InitializeStartEquity(ByVal dblEquity As Double)
     mdblStartEquity = dblEquity
     mdblEquityAmount = dblEquity
     mdblMaxEquityAmount = dblEquity
+    ReDim marrEquityHistory(0 To 0)
+    marrEquityHistory(0) = dblEquity
 End Sub
 
 Public Sub Add(ByVal dblValue As Double)
     mdblEquityAmount = mdblEquityAmount + dblValue
+    Call AddHistory(mdblEquityAmount)
     
     If mdblEquityAmount > mdblMaxEquityAmount Then
         mdblMaxEquityAmount = mdblEquityAmount
@@ -84,4 +94,25 @@ Public Function GetReturnOverDrawdown() As Double
         GetReturnOverDrawdown = Me.GetReturn() / Me.Drawdown()
     End If
 End Function
+
+Private Sub AddHistory(ByVal equity As Double)
+    ' Check if the array is empty (not yet initialized)
+    If IsEmpty(marrEquityHistory) Then
+        ReDim marrEquityHistory(0 To 0) ' Initialize the array with one element
+    Else
+        ReDim Preserve marrEquityHistory(0 To UBound(marrEquityHistory) + 1) ' Resize the array, preserving existing values and adding one more element
+    End If
+    
+    marrEquityHistory(UBound(marrEquityHistory)) = equity ' Assign the new value to the last element
+End Sub
+
+
+Public Function GetEquityHistory() As Variant
+    GetEquityHistory = marrEquityHistory
+End Function
+
+Private Sub ClearHistory()
+    ReDim marrEquityHistory(0 To 0) ' Initialize the array with one element
+End Sub
+
 

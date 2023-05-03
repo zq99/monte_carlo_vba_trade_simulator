@@ -11,6 +11,7 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
+Implements INameProvider
 
 Private mintLotSize As Integer
 Private mintTotalRuns As Integer
@@ -22,6 +23,10 @@ Private mintTradesInYear As Integer
 
 Private Const DEFAULT_RUNS As Integer = 2500
 Private Const DEFAULT_LOTSIZE As Integer = 1
+
+Private Function INameProvider_GetClassName() As String
+    INameProvider_GetClassName = "clsSimulation"
+End Function
 
 Property Get lotSize() As Integer
     lotSize = mintLotSize
@@ -98,8 +103,8 @@ Private Function fncProcessStartEquity(ByVal dblBeginEquity As Double, Optional 
 ' dblBeginEquity = Base start Equity value for the output
 ' intTotalRuns = This is the number of times to run the simulation for each equity (default is 2500)
 
-    Dim dblTotalriskofruin As Double
-    Dim intIteration As Integer
+    Dim intRiskOfRuinCount As Integer
+    Dim intRun As Integer
     Dim oEquityCurve As New clsEquityCurve
     Dim wsCalc As Worksheet
     Dim oResult As New clsResult
@@ -107,38 +112,39 @@ Private Function fncProcessStartEquity(ByVal dblBeginEquity As Double, Optional 
     
     Const STR_CALC_SHEET As String = "Calc"
 
-    dblTotalriskofruin = 0
-
+    ' this creates a temporary worksheet to perform the calculations
     Call DeleteSheetIfExists(STR_CALC_SHEET)
     Set wsCalc = ThisWorkbook.Sheets.Add(After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count))
     wsCalc.name = STR_CALC_SHEET
     
     With wsCalc
     
-        For intIteration = 1 To intTotalRuns
+        intRiskOfRuinCount = 0
+    
+        For intRun = 1 To intTotalRuns
         
             Set oEquityCurve = fncBuildEquityCurve(dblBeginEquity, mintTradesInYear, mvntTradeList, mintLotSize)
             
             If oEquityCurve.IsRuined Then
-                dblTotalriskofruin = dblTotalriskofruin + 1
+                intRiskOfRuinCount = intRiskOfRuinCount + 1
             End If
             
-            .Range("A" & intIteration).value = oEquityCurve.EquityAmount
-            .Range("B" & intIteration).value = oEquityCurve.Drawdown
-            .Range("C" & intIteration).value = oEquityCurve.GetReturn
-            .Range("D" & intIteration).value = oEquityCurve.GetReturnOverDrawdown
+            .Range("A" & intRun).value = oEquityCurve.EquityAmount
+            .Range("B" & intRun).value = oEquityCurve.Drawdown
+            .Range("C" & intRun).value = oEquityCurve.GetReturn
+            .Range("D" & intRun).value = oEquityCurve.GetReturnOverDrawdown
         
-        Next intIteration
+        Next intRun
         
-        dblTotalriskofruin = dblTotalriskofruin / mintTotalRuns
     End With
     
     wsCalc.Calculate
     lRow = wsCalc.Range("A1").Cells.CurrentRegion.Rows.Count
       
-    oResult.Equity = dblBeginEquity
-    oResult.Ruin = dblTotalriskofruin
+    oResult.equity = dblBeginEquity
+    oResult.Ruin = intRiskOfRuinCount / mintTotalRuns
     
+    'provide aggregated statistics of all the runs for this equity curve over all the simulations
     oResult.MedianProfit = Application.WorksheetFunction.Median(wsCalc.Range("A1:A" & lRow)) - dblBeginEquity
     oResult.MedianDrawdown = Application.WorksheetFunction.Median(wsCalc.Range("B1:B" & lRow))
     oResult.MedianReturn = Application.WorksheetFunction.Median(wsCalc.Range("C1:C" & lRow))
@@ -146,6 +152,7 @@ Private Function fncProcessStartEquity(ByVal dblBeginEquity As Double, Optional 
 
     Set fncProcessStartEquity = oResult
     
+    ' this removes the temporary worksheet
     Call DeleteSheetIfExists(STR_CALC_SHEET)
     Set oEquityCurve = Nothing
     Set wsCalc = Nothing
@@ -199,21 +206,21 @@ Private Sub DeleteSheetIfExists(ByVal strName As String)
 
 'Purpose: Removes interim sheets used in the calculation
 
-    Dim sheet As Worksheet
+    Dim shtObj As Worksheet
     Dim blnAlerts As Boolean
     
     blnAlerts = Application.DisplayAlerts
     Application.DisplayAlerts = False
     
-    For Each sheet In ThisWorkbook.Worksheets
-        If sheet.name = strName Then
-            sheet.Delete
+    For Each shtObj In ThisWorkbook.Worksheets
+        If shtObj.name = strName Then
+            shtObj.Delete
             Exit For
         End If
-    Next sheet
+    Next shtObj
     
     Application.DisplayAlerts = blnAlerts
-    Set sheet = Nothing
+    Set shtObj = Nothing
 End Sub
 
 

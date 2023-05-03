@@ -11,6 +11,8 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
+Implements INameProvider
+
 Private mdblEquity As Double
 Private mdblRuin As Double
 Private mdblMedianDrawdown As Double
@@ -18,13 +20,17 @@ Private mdblMedianProfit As Double
 Private mdblMedianReturn As Double
 Private mdblMedianReturnDD As Double
 
+Private Function INameProvider_GetClassName() As String
+    INameProvider_GetClassName = "clsResult"
+End Function
+
 ' Equity
-Property Let Equity(value As Double)
+Property Let equity(value As Double)
     mdblEquity = value
 End Property
 
-Property Get Equity() As Double
-    Equity = mdblEquity
+Property Get equity() As Double
+    equity = mdblEquity
 End Property
 
 ' Ruin
