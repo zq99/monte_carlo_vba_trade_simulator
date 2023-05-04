@@ -1,7 +1,7 @@
 Attribute VB_Name = "TestModule_clsResult"
 Option Explicit
 
-Sub Test_clsResult()
+Public Sub Test_clsResult()
 'Purpose: This tests the results class for errors
 
     Dim objResult As clsResult

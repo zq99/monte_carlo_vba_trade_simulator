@@ -111,6 +111,15 @@ Public Function GetEquityHistory() As Variant
     GetEquityHistory = marrEquityHistory
 End Function
 
+
+Public Function GetHistoryCount() As Integer
+    If IsEmpty(marrEquityHistory) Then
+        GetHistoryCount = 0
+    Else
+        GetHistoryCount = UBound(marrEquityHistory) + 1
+    End If
+End Function
+
 Private Sub ClearHistory()
     ReDim marrEquityHistory(0 To 0) ' Initialize the array with one element
 End Sub

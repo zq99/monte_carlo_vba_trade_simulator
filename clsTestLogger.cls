@@ -50,6 +50,11 @@ Private Sub EndTest()
     Call LogMessage("End testing")
 End Sub
 
+Public Sub PrintMessage(ByVal strMessage As String)
+    Call LogMessage(strMessage)
+End Sub
+
+
 Private Sub LogMessage(ByVal strMessage As String)
     If Not moClass Is Nothing Then
         Debug.Print fncGetDateTimeStamp & vbTab & moClass.GetClassName & " : " & strMessage

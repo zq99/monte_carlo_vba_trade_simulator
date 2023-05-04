@@ -39,7 +39,7 @@ End Property
 
 
 Private Sub Class_Initialize()
-    mintLotSize = 1
+    mintLotSize = DEFAULT_LOTSIZE
 End Sub
 
 

@@ -68,12 +68,12 @@ Public Sub Test_clsEquityCurve()
     equityHistory = oEquityCurve.GetEquityHistory
     
     ' Test if the equity history has the expected length
-    Debug.Assert UBound(equityHistory) = 3
+    Debug.Assert oEquityCurve.GetHistoryCount = 4
     
     Debug.Print ("output equity history contains the expected values..")
     Dim i As Integer
     For i = LBound(equityHistory) To UBound(equityHistory)
-        Debug.Print (i & vbTab & equityHistory(i))
+        objLogger.PrintMessage (i & vbTab & equityHistory(i))
     Next
     
     Debug.Assert equityHistory(0) = 1000

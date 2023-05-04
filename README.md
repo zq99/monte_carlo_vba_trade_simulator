@@ -40,4 +40,4 @@ This project is released under the MIT License. Please refer to the `LICENSE` fi
 
 ## Acknowledgements
 
-This is a completely original implementation of a simulation idea proposed by Kevin Davey.
+This project is an original implementation of an idea proposed by Kevin Davey.
