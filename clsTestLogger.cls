@@ -50,10 +50,26 @@ Private Sub EndTest()
     Call LogMessage("End testing")
 End Sub
 
-Public Sub PrintMessage(ByVal strMessage As String)
-    Call LogMessage(strMessage)
-End Sub
+Public Sub PrintMessage(ParamArray vntMessage() As Variant)
+' takes in an open ended list of string variables and appends then together as a message to
+' output to the immediate window
 
+    If IsEmpty(vntMessage) Then
+        Exit Sub
+    Else
+        Dim i As Integer
+        Dim strAll As String
+        'concatenate message elements into into one string
+        For i = LBound(vntMessage) To UBound(vntMessage)
+            strAll = strAll & IIf(Len(strAll) > 0, " | ", "") & CStr(vntMessage(i))
+        Next i
+        'output string to immediate window
+        If Len(Trim(strAll)) > 0 Then
+            Call LogMessage(strAll)
+        End If
+    End If
+
+End Sub
 
 Private Sub LogMessage(ByVal strMessage As String)
     If Not moClass Is Nothing Then

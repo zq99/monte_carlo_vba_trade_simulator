@@ -33,7 +33,6 @@ Public Sub Test_clsResult()
     
     ' Clean up
     Set objResult = Nothing
-    
     Set objLogger = Nothing
 
 End Sub

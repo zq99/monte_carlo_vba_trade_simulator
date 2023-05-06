@@ -7,21 +7,21 @@ Public Sub Test_clsSimulation()
     Dim objSimulation As clsSimulation
     Dim objResults As Collection
     Dim objResult As clsResult
-    Dim TradeList As Variant
-    Dim tradesInYear As Integer
-    Dim startEquity As Double
-    Dim margin As Double
-    Dim lotSize As Integer
-    Dim totalRuns As Integer
+    Dim vntTradeList As Variant
+    Dim intTradesInYear As Integer
+    Dim dblStartEquity As Double
+    Dim dblMargin As Double
+    Dim intLotSize As Integer
+    Dim intTotalRuns As Integer
     Dim objLogger As clsTestLogger
     
     ' Initialize input data for the simulation
-    tradesInYear = 100
-    TradeList = Array(10, 20, -10, -15, 30, 40, -20, 50, 10, -30)
-    startEquity = 10000
-    margin = 1000
-    lotSize = 1
-    totalRuns = 2500
+    intTradesInYear = 100
+    vntTradeList = Array(10, 20, -10, -15, 30, 40, -20, 50, 10, -30)
+    dblStartEquity = 10000
+    dblMargin = 1000
+    intLotSize = 1
+    intTotalRuns = 2500
     
     ' Instantiate clsSimulation object
     Set objSimulation = New clsSimulation
@@ -31,7 +31,7 @@ Public Sub Test_clsSimulation()
     objLogger.SetClass objSimulation
     
     ' Initialize properties for the simulation
-    objSimulation.InitiateProperties tradesInYear, TradeList, startEquity, margin, lotSize, totalRuns
+    objSimulation.InitiateProperties intTradesInYear, vntTradeList, dblStartEquity, dblMargin, intLotSize, intTotalRuns
     
     ' Run simulation process
     Set objResults = objSimulation.fncRunProcess
@@ -39,9 +39,9 @@ Public Sub Test_clsSimulation()
     Debug.Assert objResults.Count > 0
     
     ' Display results
-    Debug.Print "Equity", "Risk of Ruin", "Median Profit", "Median Drawdown", "Median Return", "Median Return/DD"
+    objLogger.PrintMessage "Equity", "Risk of Ruin", "Median Profit", "Median Drawdown", "Median Return", "Median Return/DD"
     For Each objResult In objResults
-        Debug.Print objResult.equity, objResult.Ruin, objResult.MedianProfit, objResult.MedianDrawdown, objResult.MedianReturn, objResult.MedianReturnDD
+        objLogger.PrintMessage objResult.equity, objResult.Ruin, objResult.MedianProfit, objResult.MedianDrawdown, objResult.MedianReturn, objResult.MedianReturnDD
     Next objResult
     
     ' Clean up
